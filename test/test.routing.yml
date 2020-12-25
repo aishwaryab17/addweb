@@ -1,0 +1,19 @@
+test.nodeserializer:
+  path: 'page_json/{siteapikey}/{nodeid}'
+  defaults:
+    _controller: '\Drupal\test\Controller\NodeSerializer::getPageParams'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+    _module_dependencies: 'node + serialization'
+    node: \d+
+  # Defining Options.
+  options:
+    parameters:
+      siteapikey:
+        type: siteapikey
+      node:
+        type: entity:node
+  # Optional key, But we are adding for better practice & specifying this means Incoming Request is GET request.
+  methods: [GET]
+  

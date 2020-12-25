@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * Implements hook_form_alter().
+ */
+function test_form_system_site_information_settings_alter(&$form, $form_state, $form_id)
+{
+
+    // Add Site API Key field to 'Site Information' section
+    $site_api_key = \Drupal::config('siteapikey.configuration')->get('siteapikey');
+    $form['site_information']['site_api_key'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Site API Key'),
+        '#default_value' => $site_api_key,
+	'#placeholder' => 'No Api Key yet!',
+        
+    );
+
+    // Change form submit button text to 'Update Configuration' if apikey is set
+	if(isset($site_api_key) && $site_api_key !='')
+{
+    $form['actions']['submit']['#value'] = t('Update Configuration');
+}
+    // Handle form submission
+    $form['#submit'][] = 'test_handler';
+}
+
+function test_handler($form, &$form_state)
+{
+    // Update the system variable Site API Key
+    $config = \Drupal::configFactory()->getEditable('siteapikey.configuration');
+    $new_site_api_key = $form_state->getValue(['site_api_key']);
+    $config->set('siteapikey', $new_site_api_key);
+    $config->save();
+
+    // Add message that Site API Key has been set
+    if($new_site_api_key !='') {
+    drupal_set_message("Successfully set Site API Key to " . $new_site_api_key);
+}
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function test_uninstall(){
+    // Remove the previously set Site API Key configuration
+    \Drupal::configFactory()->getEditable('siteapikey.configuration')->delete();
+}
